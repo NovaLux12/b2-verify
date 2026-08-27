@@ -1,0 +1,8 @@
+# Local configuration - copy config.example.json to config.json
+/config.json
+
+# Build output
+/b2-verify
+
+# Test binaries
+*.test

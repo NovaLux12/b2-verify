@@ -1,0 +1,21 @@
+{
+  "listen": ":9118",
+  "interval_seconds": 300,
+  "legs": [
+    {
+      "name": "database-dump-to-b2",
+      "kind": "b2",
+      "bucket": "YOUR_BUCKET",
+      "prefix": "database-dumps/",
+      "key_id_env": "B2_KEY_ID",
+      "key_env": "B2_APPLICATION_KEY",
+      "max_age_hours": 30
+    },
+    {
+      "name": "hourly-git-snapshots",
+      "kind": "file",
+      "path": "/var/backups/git-snapshots",
+      "max_age_hours": 2
+    }
+  ]
+}
