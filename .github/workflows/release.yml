@@ -1,0 +1,48 @@
+name: release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          cache: true
+
+      - name: Build (linux/amd64)
+        run: |
+          mkdir -p dist
+          LDFLAGS="-s -w -X main.version=${GITHUB_REF_NAME}"
+          GOOS=linux  GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/b2-verify-linux-amd64   .
+          GOOS=linux  GOARCH=arm64 go build -ldflags "$LDFLAGS" -o dist/b2-verify-linux-arm64   .
+          GOOS=darwin GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/b2-verify-darwin-amd64  .
+          GOOS=darwin GOARCH=arm64 go build -ldflags "$LDFLAGS" -o dist/b2-verify-darwin-arm64  .
+          GOOS=windows GOARCH=amd64 go build -ldflags "$LDFLAGS" -o dist/b2-verify-windows-amd64.exe .
+
+      - name: Checksums
+        run: |
+          cd dist
+          sha256sum b2-verify-* > SHA256SUMS
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/b2-verify-linux-amd64
+            dist/b2-verify-linux-arm64
+            dist/b2-verify-darwin-amd64
+            dist/b2-verify-darwin-arm64
+            dist/b2-verify-windows-amd64.exe
+            dist/SHA256SUMS
+          generate_release_notes: true
