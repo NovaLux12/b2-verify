@@ -40,6 +40,12 @@ func main() {
 	showVersion := fs.Bool("version", false, "print version and exit")
 	fs.Usage = func() { fmt.Fprint(fs.Output(), usageText) }
 	fs.Parse(os.Args[1:])
+
+	if *showVersion {
+		fmt.Printf("b2-verify %s\n", version)
+		return
+	}
+
 	args := fs.Args()
 	if len(args) == 0 {
 		fs.Usage()
@@ -51,11 +57,12 @@ func main() {
 		// The flag package stops at the first positional argument, so reparse
 		// the tail to pick up trailing flags.
 		fs.Parse(args[1:])
-	}
 
-	if *showVersion {
-		fmt.Printf("b2-verify %s\n", version)
-		return
+		// --version may have lived in the trailing tail; re-check.
+		if *showVersion {
+			fmt.Printf("b2-verify %s\n", version)
+			return
+		}
 	}
 
 	cfg, err := loadConfig(*configPath)
